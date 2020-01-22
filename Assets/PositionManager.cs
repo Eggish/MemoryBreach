@@ -1,17 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
 public class PositionManager : MonoBehaviour
 {
-    [SerializeField] private GameObject[] PositionMarkers;
+    [SerializeField] private GameObject[] PositionMarkers = null;
     private Vector2Int SelectorPos;
+
+    public static Vector3 PlayerPos; 
 
     private const int GridWidth = 3;
     private const int GridHeight = 3;
     void Start()
     {
         SelectorPos = new Vector2Int(1, 1);
+        PlayerPos = GetTile(SelectorPos.x, SelectorPos.y).transform.position;
     }
 
     void Update()
@@ -41,15 +45,15 @@ public class PositionManager : MonoBehaviour
 
     public void MoveSelector(Direction pDirection)
     {
-        GameObject newTile;
+        GameObject newTile = null;
         switch (pDirection)
         {
             case Direction.UP:
                 newTile = GetTile(SelectorPos.x, SelectorPos.y - 1);
-
                 if (newTile != null)
                 {
                     newTile.SetActive(true);
+                    
                     GetTile(SelectorPos.x, SelectorPos.y).SetActive(false);
                     SelectorPos.y--;
                 }
@@ -86,6 +90,11 @@ public class PositionManager : MonoBehaviour
                 break;
             default:
                 break;
+        }
+
+        if (newTile != null)
+        {
+            PlayerPos = newTile.transform.position;
         }
     }
 

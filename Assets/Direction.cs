@@ -5,7 +5,7 @@ using UnityEngine;
 public enum Direction
 {
     UP,
-    RIGHT,
+    LEFT,
     DOWN,
-    LEFT
+    RIGHT
 }

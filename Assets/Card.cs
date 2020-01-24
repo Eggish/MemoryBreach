@@ -7,7 +7,13 @@ public class Card : MonoBehaviour
     [SerializeField]
     private SpriteRenderer[] Symbols = null;
 
-    private bool[] IsSymbolActive;
+    private CardBase Base;
+
+    [SerializeField]
+    private SpriteRenderer SelectionMarker = null;
+
+    [SerializeField]
+    private SpriteRenderer Background = null;
 
     private void Awake()
     {
@@ -19,18 +25,57 @@ public class Card : MonoBehaviour
 
     void Update()
     {
-        
+
     }
-    public void Setup(bool[] pIsSymbolActive)
+    
+    public void Setup(CardBase pCardBase)
     {
-        IsSymbolActive = pIsSymbolActive;
+        Base = pCardBase;
     }
 
-    public void TurnCard()
+    public void Turn(bool pActivate)
     {
-        for(int i = 0; i < IsSymbolActive.Length; i++)
+        if(!pActivate)
         {
-            Symbols[i].enabled = IsSymbolActive[i];
+            foreach(SpriteRenderer s in Symbols)
+            {
+                s.enabled = false;
+            }
+            return;
         }
+        if (Base.First)
+        {
+            Symbols[0].enabled = true;
+        }
+        if (Base.Second)
+        {
+            Symbols[1].enabled = true;
+        }
+        if (Base.Third)
+        {
+            Symbols[2].enabled = true;
+        }
+    }
+    public CardBase GetBase()
+    {
+        return Base;
+    }
+
+    public void Deactivate()
+    {
+        Background.enabled = false;
+    }
+
+    public bool IsDeactivated()
+    {
+        if (Background.enabled)
+            return false;
+        return true;
+    }
+
+
+    public void ToggleSelection(bool pIsSelected)
+    {
+        SelectionMarker.enabled = pIsSelected;
     }
 }

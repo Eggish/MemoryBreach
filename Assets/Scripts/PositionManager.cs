@@ -43,7 +43,7 @@ public class PositionManager : MonoBehaviour
         }
     }
 
-    public void MoveSelector(Direction pDirection)
+    private void MoveSelector(Direction pDirection)
     {
         GameObject newTile = null;
         switch (pDirection)

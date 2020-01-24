@@ -8,6 +8,7 @@ public class Bullet
     private int Position;
     public bool IsActive;
 
+
     public void Fire(List<GameObject> pBulletPositions)
     {
         Position = 0;
@@ -57,6 +58,9 @@ public class CanonManager : MonoBehaviour
 
     [SerializeField] 
     private float ShotCooldown = 1.0f;
+
+    [SerializeField]
+    private float ShotReduction = 0.1f;
 
     private float ShotAdvanceTimer = 0.0f;
     private float ShotTimer = 0.0f;
@@ -119,6 +123,10 @@ public class CanonManager : MonoBehaviour
         newBullet.Fire(chosenBulletLane);
         Bullets.Add(newBullet);
         ShotTimer = ShotCooldown;
+    }
+    public void IncreaseFireRate()
+    {
+        ShotCooldown -= ShotReduction;
     }
 
     private void ValidateBullets()

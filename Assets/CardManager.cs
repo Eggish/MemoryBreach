@@ -33,6 +33,11 @@ public class CardManager : MonoBehaviour
 
     private Card FirstSelection = null;
 
+    [SerializeField] 
+    private SoundManager SoundManager = null;
+
+    private int CardsRemaining = 0;
+
     void Start()
     {
         PossibleCardBases.Add(new CardBase(true, true, true));
@@ -46,10 +51,13 @@ public class CardManager : MonoBehaviour
         CardSetup();
         GetCard(SelectorPos.x, SelectorPos.y).ToggleSelection(true);
         CanonManager = FindObjectOfType<CanonManager>();
+        CardsRemaining = Cards.Length;
     }
 
     void Update()
     {
+        if (GameManager.GameIsOver)
+            return;
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             MoveSelector(Direction.RIGHT);
@@ -79,9 +87,7 @@ public class CardManager : MonoBehaviour
             Card newCard = GetCard(SelectorPos.x, SelectorPos.y);
 
             if (newCard.IsDeactivated())
-            {
                 return;
-            }
             
             FirstSelection = newCard;
 
@@ -90,6 +96,10 @@ public class CardManager : MonoBehaviour
         else
         {
             Card secondSelection = GetCard(SelectorPos.x, SelectorPos.y);
+
+            if (secondSelection.IsDeactivated())
+                return;
+
             if(FirstSelection != secondSelection
                 && IsPair(FirstSelection, secondSelection))
             {
@@ -102,14 +112,29 @@ public class CardManager : MonoBehaviour
                 StartCoroutine(DelayedTurn(TurnDelay, secondSelection));
 
                 FirstSelection = null;
+
+                CardsRemaining -= 2;
+
+                if (CardsRemaining <= 0)
+                {
+                    SoundManager.PlayGameWin();
+                    GameManager.GameOver();
+                }
+                else
+                {
+                    SoundManager.PlayMemorySuccess();
+                }
             }
             else
             {
                 secondSelection.Turn(true);
-                CanonManager.IncreaseFireRate();
+
                 StartCoroutine(DelayedTurn(TurnDelay, FirstSelection));
                 StartCoroutine(DelayedTurn(TurnDelay, secondSelection));
+
                 FirstSelection = null;
+                SoundManager.PlayMemoryFail();
+                CanonManager.IncreaseFireRate();
             }
         }
     }

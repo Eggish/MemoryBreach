@@ -1,46 +1,51 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class Bullet
 {
     private List<GameObject> BulletPositions;
-    private int Position;
+    private int PositionIterator;
     public bool IsActive;
+    public Vector3 Position;
 
-
-    public void Fire(List<GameObject> pBulletPositions)
+    private SoundManager SoundManager;
+    public void Fire(List<GameObject> pBulletPositions, SoundManager pSoundManager)
     {
-        Position = 0;
+        PositionIterator = 0;
         BulletPositions = pBulletPositions;
         IsActive = true;
+        SoundManager = pSoundManager;
     }
 
     public void Advance()
     { 
-        if (Position + 1 >= BulletPositions.Count - 1)
+        if (PositionIterator + 1 >= BulletPositions.Count - 1)
         {
             IsActive = false;
-            BulletPositions[Position].SetActive(false);
+            BulletPositions[PositionIterator].SetActive(false);
             return;
         }
 
-        if (WillHitPlayer(BulletPositions[Position].transform.position,
-            BulletPositions[Position + 1].transform.position))
+        if (WillHitPlayer(BulletPositions[PositionIterator].transform.position,
+            BulletPositions[PositionIterator + 1].transform.position))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            SoundManager.PlayGameOver();
+            GameManager.GameOver();
             return;
         }
-        BulletPositions[Position].SetActive(false);
-        Position++;
-        BulletPositions[Position].SetActive(true);
+        BulletPositions[PositionIterator].SetActive(false);
+        PositionIterator++;
+        BulletPositions[PositionIterator].SetActive(true);
+        Position = BulletPositions[PositionIterator].transform.position;
     }
 
     private bool WillHitPlayer(Vector3 pOldPos, Vector3 pNewPos)
     {
         if (Vector3.Distance(pOldPos, PositionManager.PlayerPos) +
-            Vector3.Distance(pNewPos, PositionManager.PlayerPos)
-            == Vector3.Distance(pOldPos, pNewPos))
+            Vector3.Distance(pNewPos, PositionManager.PlayerPos) -
+            Vector3.Distance(pOldPos, pNewPos) < 0.5f)
         {
             return true;
         }
@@ -67,6 +72,9 @@ public class CanonManager : MonoBehaviour
 
     private List<Bullet> Bullets = new List<Bullet>();
 
+    [SerializeField] 
+    private SoundManager SoundManager = null;
+
     void Start()
     {
         
@@ -74,6 +82,9 @@ public class CanonManager : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.GameIsOver)
+            return;
+
         ValidateBullets();
         UpdateTimers();
         if (ShotAdvanceTimer < 0)
@@ -120,13 +131,18 @@ public class CanonManager : MonoBehaviour
             chosenBulletLane.Reverse();
         }
         Bullet newBullet = new Bullet();
-        newBullet.Fire(chosenBulletLane);
+        newBullet.Fire(chosenBulletLane, SoundManager);
         Bullets.Add(newBullet);
         ShotTimer = ShotCooldown;
+
+        SoundManager.PlayCanonShot();
     }
     public void IncreaseFireRate()
     {
-        ShotCooldown -= ShotReduction;
+        if (ShotCooldown > ShotReduction + 0.2f)
+        {
+            ShotCooldown -= ShotReduction;
+        }
     }
 
     private void ValidateBullets()
@@ -149,5 +165,10 @@ public class CanonManager : MonoBehaviour
         {
             Bullets.RemoveAt(i);
         }
+    }
+
+    public List<Bullet> GetBullets()
+    {
+        return Bullets;
     }
 }

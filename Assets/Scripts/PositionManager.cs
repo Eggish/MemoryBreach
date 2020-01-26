@@ -6,6 +6,8 @@ using UnityEngine;
 public class PositionManager : MonoBehaviour
 {
     [SerializeField] private GameObject[] PositionMarkers = null;
+    [SerializeField] private CanonManager CanonManager = null;
+    [SerializeField] private SoundManager SoundManager = null;
     private Vector2Int SelectorPos;
 
     public static Vector3 PlayerPos; 
@@ -20,6 +22,8 @@ public class PositionManager : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.GameIsOver)
+            return;
         CheckInput();
     }
 
@@ -94,6 +98,17 @@ public class PositionManager : MonoBehaviour
 
         if (newTile != null)
         {
+            List<Bullet> bullets = CanonManager.GetBullets();
+            foreach (Bullet b in bullets)
+            {
+                if (Vector3.Distance(PlayerPos, b.Position) +
+                    Vector3.Distance(newTile.transform.position, b.Position) -
+                    Vector3.Distance(PlayerPos, newTile.transform.position) < 0.1f)
+                {
+                    SoundManager.PlayGameOver();
+                    GameManager.GameOver();
+                }
+            }
             PlayerPos = newTile.transform.position;
         }
     }

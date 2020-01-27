@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Collections.LowLevel.Unsafe;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class PositionManager : MonoBehaviour
@@ -96,15 +94,20 @@ public class PositionManager : MonoBehaviour
                 break;
         }
 
+
         if (newTile != null)
         {
+
             List<Bullet> bullets = CanonManager.GetBullets();
             foreach (Bullet b in bullets)
             {
+                if (!b.IsActive)
+                    continue;
                 if (Vector3.Distance(PlayerPos, b.Position) +
                     Vector3.Distance(newTile.transform.position, b.Position) -
                     Vector3.Distance(PlayerPos, newTile.transform.position) < 0.1f)
                 {
+                    //Debug.Log("Player : " + PlayerPos + "Bullet : " + b.Position);
                     SoundManager.PlayGameOver();
                     GameManager.GameOver();
                 }

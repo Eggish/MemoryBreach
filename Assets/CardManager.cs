@@ -74,7 +74,7 @@ public class CardManager : MonoBehaviour
         {
             MoveSelector(Direction.UP);
         }
-        if (Input.GetKeyDown(KeyCode.Return))
+        if (Input.GetKeyDown(KeyCode.A))
         {
             SelectCard();
         }
